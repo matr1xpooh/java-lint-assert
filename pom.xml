@@ -251,9 +251,9 @@
 	</profiles>
 
 	<scm>
-		<url>https://github.com/jpmorganchase/java-lint-assert</url>
-		<connection>scm:git:https://github.com/jpmorganchase/java-lint-assert.git</connection>
-		<developerConnection>scm:git:https://github.com/jpmorganchase/java-lint-assert.git</developerConnection>
+		<url>https://github.com/matr1xpooh/java-lint-assert.git</url>
+		<connection>scm:git:https://github.com/matr1xpooh/java-lint-assert.git</connection>
+		<developerConnection>scm:git:https://github.com/matr1xpooh/java-lint-assert.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 	<distributionManagement>

@@ -2,12 +2,11 @@
 
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://choosealicense.com/licenses/apache-2.0/)
-![Build Status](https://github.com/matr1xpooh/java-lint-assert/actions/workflows/maven.yml/badge.svg)
+[![Build Status](https://github.com/jpmorganchase/java-lint-assert/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/jpmorganchase/java-lint-assert/actions/workflows/maven.yml)
 ----
 
 ## Public Archive
 
-**This project is currently Archived and not accepting contributions or issues.** 
 
 Forking is permitted if you are interested in developing further. 
 
@@ -24,11 +23,11 @@ The Java _Gradle_ and _Maven_ plugin for the `test` task that reports presence o
 ## Features:
 1. Prints the number of assert calls in each test method to the console
 1. Excludes ignored/disabled test classes and methods from linting 
-1. Exclude tests that throw expected exceptions 
+1. Excludes tests that throw expected exceptions 
 1. Limits the lint to recursively search from a top level package (for ex. 'org.samples')
 1. Allows verbose output
 1. Optionally loads test classes from the classpath
-1. Optionally condenses output to print only assert-less tests 
+1. By default, prints only assert-less tests. Can be instructed to print all tests.
 
 ## Supported Testing Frameworks:
 - JUnit 4
@@ -68,6 +67,17 @@ and run `gradle cleanTest test` . You should see the summary table:
 * build samples module
 * install core jar into your local maven repo 
 
+To see the plugin in action, `cd ./client-maven`,
+and run `mvn clean test`. You should see the summary table:
+| Package  | Test file name | Test method name  | # asserts  |
+| :-------------: |:-------------:| :-------------:|  :-------------:|
+|    sample/junit4    |    AssertJunit4Style.java    |     withoutAsserts     |        0        |
+|    sample/junit5    |    AssertJunit5Style.java    |      withAsserts       |        2        |
+|    sample/testng    |       TestNgStyle.java       |      withAsserts       |        1        |
+|    sample/junit4    |    AssertJunit4Style.java    |      withAsserts       |        1        |
+|    sample/testng    |       TestNgStyle.java       |     withoutAsserts     |        0        |
+|       sample        |        DummyTest.java        |         dummy          |        0        |
+|    sample/junit5    |    AssertJunit5Style.java    |     withoutAsserts     |        0        |
 ## Use:
 
 #### Gradle:
@@ -112,19 +122,24 @@ I: Include the plugin in the build plugins and optionally overwrite default valu
             <plugin>
                 <groupId>com.github.jpmorganchase.lint-assert</groupId>
                 <artifactId>lint-assert-maven-plugin</artifactId>
-                <version>0.3.0-SNAPSHOT</version>
+                <version>${java-lint-assert.version}</version>
                 <configuration>
-                    <!-- optional or scan all -->
+                    <!-- optional, defaults to false -->
+                    <includeClasspathJars>true</includeClasspathJars>
+                    <!-- optional, defaults to false -->
+                    <verbose>false</verbose>
+                    <!-- optional package to scan or scan all -->
                     <packageName>sample</packageName>
-                </configuration>
+                    <!-- optional; values: ALL | ASSERTLESS_ONLY (default: ASSERTLESS_ONLY) -->
+                    <printMode>ASSERTLESS_ONLY</printMode>
                 <executions>
-                    <execution>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>lint-assert</goal>
-                        </goals>
-                    </execution>
-                </executions> 
+                    <execution>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>lint-assert</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             ...
         </plugins>
@@ -132,7 +147,8 @@ I: Include the plugin in the build plugins and optionally overwrite default valu
     </build>
 ```
 
-II: run `mvn clean test`
+II: run `mvn clean test`. By default, the plugin will print only tests that don't have asserts, to see all tests, set `<printMode>ALL</printMode>`
+
 
 #### Available configuration options:
 |  Option | Required? | Default value  | Values | Purpose |
@@ -158,5 +174,5 @@ II: run `mvn clean test`
 
 ## License
 
-The Apache 2.0 License). Please see [License](https://choosealicense.com/licenses/apache-2.0/) for more information.
+The Apache 2.0 License. Please see [License](https://choosealicense.com/licenses/apache-2.0/) for more information.
 

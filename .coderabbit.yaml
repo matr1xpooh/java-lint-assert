@@ -1,0 +1,38 @@
+# CodeRabbit Configuration
+review:
+  # Review type: "full" or "diff"
+  type: "full"
+  
+  # Language-specific settings
+  language: "java"
+  
+  # Focus areas for the review
+  focus:
+    - "code quality"
+    - "security"
+    - "performance"
+    - "best practices"
+    - "test coverage"
+  
+  # Custom instructions for the AI
+  instructions: |
+    This is a Java linting tool for test assertions. Please focus on:
+    - Java coding standards and best practices
+    - Test framework integration patterns
+    - Plugin architecture and extensibility
+    - Error handling and edge cases
+    - Documentation and code comments
+
+# File patterns to include/exclude
+files:
+  include:
+    - "**/*.java"
+    - "**/*.xml"
+    - "**/*.gradle"
+    - "**/*.yml"
+    - "**/*.yaml"
+  exclude:
+    - "**/target/**"
+    - "**/build/**"
+    - "**/.gradle/**"
+    - "**/node_modules/**"

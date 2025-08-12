@@ -1,0 +1,25 @@
+name: CodeRabbit
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  coderabbit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: CodeRabbit
+        uses: coderabbitai/ai-pr-reviewer@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CODERABBIT_TOKEN: ${{ secrets.CODERABBIT_TOKEN }}
+        with:
+          # Optional: Customize the review
+          review_type: "full"
+          # Optional: Set language for better context
+          language: "java"

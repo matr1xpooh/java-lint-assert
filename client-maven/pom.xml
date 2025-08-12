@@ -45,7 +45,7 @@
                 <version>${java-lint-assert.version}</version>
                 <configuration>
                     <!-- optional, defaults to false -->
-                    <includeClasspathJars>true</includeClasspathJars>
+                    <includeClasspathJars>false</includeClasspathJars>
                     <!-- optional, defaults to false -->
                     <verbose>false</verbose>
                     <!-- optional or scan all -->

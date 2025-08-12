@@ -5,14 +5,14 @@ import org.lint.azzert.command.RemoveMethodsWithAssertsCommand;
 
 public enum PrintMode {
 
-    ASSERTLESS_ONLY(new RemoveMethodsWithAssertsCommand()), ALL(new LintCommand(){});
+    ASSERTLESS_ONLY(new RemoveMethodsWithAssertsCommand()), ALL(new LintCommand<Void>(){});
 
-    private final LintCommand command;
-    private PrintMode(LintCommand command){
+    private final LintCommand<Void> command;
+    private PrintMode(LintCommand<Void> command){
         this.command = command;
     }
 
-    public LintCommand getCommand(){
+    public LintCommand<Void> getCommand(){
         return command;
     }
 

@@ -16,7 +16,7 @@ import java.util.Set;
 public class FindTestMethodsCommand implements LintCommand<Void> {
 
     private final ClassLoader classLoader;
-    private final Set<LintCommand> successors;
+    private final Set<LintCommand<Void>> successors;
 
     private LintAssertBuildParameters params;
 
@@ -28,7 +28,7 @@ public class FindTestMethodsCommand implements LintCommand<Void> {
         this.successors = new LinkedHashSet<>();
     }
 
-    public FindTestMethodsCommand withSuccessor(LintCommand successor){
+    public FindTestMethodsCommand withSuccessor(LintCommand<Void> successor){
         this.successors.add(successor);
         return this;
     }
@@ -49,7 +49,7 @@ public class FindTestMethodsCommand implements LintCommand<Void> {
             classReader.accept(classVisitor, 0);
         }
 
-        for (LintCommand successor : successors){
+        for (LintCommand<Void> successor : successors){
             successor.execute(context);
         }
 
