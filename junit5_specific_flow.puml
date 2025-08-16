@@ -1,0 +1,66 @@
+@startuml JUnit5 Specific Flow
+
+title JUnit5 Strategy Specific Flow
+
+participant "Test Method" as TM
+participant "JUnit5Strategy" as J5S
+participant "MethodMetadata" as MM
+participant "Context" as CTX
+
+note over TM, CTX
+JUnit5 Test Method Example:
+@Test
+void withAsserts() {
+    assertTrue(true);
+    Assertions.assertArrayEquals(new int[]{1,2}, new int[]{1,2});
+}
+end note
+
+== Method Discovery ==
+TM -> J5S: isTest(methodMetadata)
+activate J5S
+J5S -> MM: getAnnotations()
+MM --> J5S: Set<AnnotationMetadata>
+J5S -> J5S: check for "Lorg/junit/jupiter/api/Test;"
+J5S --> TM: true (has @Test annotation)
+deactivate J5S
+
+== Disabled Method Check ==
+TM -> J5S: isDisabledMethod(methodMetadata)
+activate J5S
+J5S -> MM: getAnnotations()
+MM --> J5S: Set<AnnotationMetadata>
+J5S -> J5S: check for "Lorg/junit/jupiter/api/Disabled;"
+J5S --> TM: false (no @Disabled annotation)
+deactivate J5S
+
+== Assert Call Filtering ==
+TM -> J5S: removeCallsThatAreNotAsserts(methodMetadata, context)
+activate J5S
+J5S -> MM: getMethodCalls()
+MM --> J5S: List<MethodCallMetadata>
+
+loop for each method call
+    J5S -> J5S: check if call contains "org.junit.jupiter.api"
+    alt is assert call
+        J5S -> J5S: keep call (assertTrue, assertArrayEquals)
+    else is not assert call
+        J5S -> MM: remove call
+    end
+end
+
+J5S -> CTX: getExtensionLibPackages()
+CTX --> J5S: Set<String>
+J5S -> J5S: check if call is in extension libs
+J5S --> TM: void (filtering complete)
+deactivate J5S
+
+== Framework Configuration ==
+note over J5S
+JUnit5Strategy Configuration:
+- Supported Framework: "Lorg/junit/jupiter/api/Test;"
+- Assert API: "org.junit.jupiter.api"
+- Disabled Annotation: "Lorg/junit/jupiter/api/Disabled;"
+end note
+
+@enduml

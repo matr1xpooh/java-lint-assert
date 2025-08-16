@@ -1,0 +1,146 @@
+@startuml JUnit5 Flow Sequence Diagram
+
+title JUnit5 Flow Sequence Diagram
+
+participant "Client" as C
+participant "LintAssertProcessor" as LAP
+participant "ContextBuilder" as CB
+participant "FindTestMethodsCommand" as FTMC
+participant "TestClassFinder" as TCF
+participant "LintAssertClassVisitor" as LACV
+participant "LintAssertMethodVisitor" as LAMV
+participant "JUnit5Strategy" as J5S
+participant "RemoveMethodsThatAreNotTestsCommand" as RMNTC
+participant "ExemptDisabledMethodsCommand" as EDMC
+participant "RemoveNonAssertCallsCommand" as RNAC
+participant "PrintMode Command" as PMC
+participant "Context" as CTX
+
+C -> LAP: process()
+activate LAP
+
+LAP -> CB: build()
+activate CB
+CB -> CTX: new Context(asmVersion)
+activate CTX
+CB --> LAP: context
+deactivate CB
+
+LAP -> FTMC: execute(context)
+activate FTMC
+
+FTMC -> TCF: getClasses()
+activate TCF
+TCF -> TCF: scan package "sample.junit5"
+TCF --> FTMC: List<URL> classes
+deactivate TCF
+
+loop for each class URL
+    FTMC -> FTMC: ClassReader(classURL.openStream())
+    FTMC -> LACV: accept(classVisitor, 0)
+    activate LACV
+    
+    LACV -> CTX: getMethodInFlight()
+    CTX --> LACV: MethodMetadata
+    
+    LACV -> LACV: visit(version, access, name, signature, superName, interfaces)
+    LACV -> CTX: setPackageName() & setClassName()
+    
+    loop for each method in class
+        LACV -> LAMV: visitMethod(access, name, desc, signature, exceptions)
+        activate LAMV
+        
+        LAMV -> CTX: withAnnotation(annotation, isVisible)
+        CTX -> CTX: add AnnotationMetadata
+        
+        loop for each annotation
+            LAMV -> LAMV: visitAnnotation(annotation, isMethodVisible)
+            LAMV -> CTX: withAnnotation(annotation, isVisible)
+        end
+        
+        loop for each method call
+            LAMV -> CTX: recordMethodCall(definingClass, methodName, lineNumber)
+            CTX -> CTX: add MethodCallMetadata
+        end
+        
+        LAMV -> CTX: resetCurrentMethodContext()
+        CTX -> CTX: seedTestFramework(JUnit5Strategy)
+        CTX -> CTX: create new MethodMetadata
+        
+        LAMV --> LACV: MethodVisitor
+        deactivate LAMV
+    end
+    
+    LACV --> FTMC: void
+    deactivate LACV
+end
+
+FTMC -> RMNTC: execute(context)
+activate RMNTC
+RMNTC -> CTX: getMethods()
+CTX --> RMNTC: Set<MethodMetadata>
+
+loop for each method
+    RMNTC -> J5S: isTest(method)
+    J5S -> J5S: check for @Test annotation
+    J5S --> RMNTC: boolean
+    RMNTC -> CTX: removeIf(!isTest)
+end
+RMNTC --> FTMC: void
+deactivate RMNTC
+
+FTMC -> EDMC: execute(context)
+activate EDMC
+EDMC -> CTX: getMethods()
+CTX --> EDMC: Set<MethodMetadata>
+
+loop for each method
+    EDMC -> J5S: isDisabledMethod(method)
+    J5S -> J5S: check for @Disabled annotation
+    J5S --> EDMC: boolean
+    EDMC -> CTX: removeIf(isDisabled)
+end
+EDMC --> FTMC: void
+deactivate EDMC
+
+FTMC -> RNAC: execute(context)
+activate RNAC
+RNAC -> CTX: getMethods()
+CTX --> RNAC: Set<MethodMetadata>
+
+loop for each method
+    RNAC -> J5S: removeCallsThatAreNotAsserts(method, context)
+    J5S -> J5S: filter method calls by assertApi "org.junit.jupiter.api"
+    J5S -> CTX: removeIf(!isAssert)
+end
+RNAC --> FTMC: void
+deactivate RNAC
+
+FTMC -> PMC: execute(context)
+activate PMC
+PMC -> CTX: getMethods()
+CTX --> PMC: Set<MethodMetadata>
+PMC -> PMC: format and print results
+PMC --> FTMC: void
+deactivate PMC
+
+FTMC --> LAP: void
+deactivate FTMC
+
+LAP -> CTX: getMethods()
+CTX --> LAP: Set<MethodMetadata>
+LAP --> C: Set<MethodMetadata>
+deactivate LAP
+deactivate CTX
+
+note over C, CTX
+JUnit5 Flow Summary:
+1. Scan for test classes in package
+2. Parse bytecode using ASM visitors
+3. Identify @Test annotated methods
+4. Filter out @Disabled methods
+5. Remove non-assert method calls
+6. Output results
+end note
+
+@enduml

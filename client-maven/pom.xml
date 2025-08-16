@@ -49,9 +49,9 @@
                     <!-- optional, defaults to false -->
                     <verbose>false</verbose>
                     <!-- optional or scan all -->
-                    <packageName>sample</packageName>
+                    <packageName>org.lint</packageName>
                     <!-- optional. available values:{ASSERTLESS_ONLY (default), ALL} -->
-                    <printMode>ASSERTLESS_ONLY</printMode>
+                    <printMode>ALL</printMode>
                 </configuration>
                 <executions>
                     <execution>
